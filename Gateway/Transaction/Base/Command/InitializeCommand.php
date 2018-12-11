@@ -2,8 +2,6 @@
 
 namespace Webjump\BraspagPagador\Gateway\Transaction\Base\Command;
 
-
-use const False\MyClass\true;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Api\Data\OrderInterface;
