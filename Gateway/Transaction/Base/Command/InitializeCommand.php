@@ -3,14 +3,14 @@
 namespace Webjump\BraspagPagador\Gateway\Transaction\Base\Command;
 
 
-use Magento\Payment\Gateway\Helper\SubjectReader;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Api\Data\OrderInterface;
+use const False\MyClass\true;
 use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Webjump\BraspagPagador\Model\Payment\Transaction\CreditCard\Ui\ConfigProvider as CreditCardProvider;
-use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\Service\InvoiceService;
 
 
 /**
@@ -24,15 +24,19 @@ class InitializeCommand implements CommandInterface
     protected $invoiceService;
 
     protected $eventManager;
+    
+    protected $orderRepository;
 
     public function __construct(
         \Webjump\BraspagPagador\Gateway\Transaction\CreditCard\Config\ConfigInterface $config,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     ) {
         $this->config = $config;
         $this->invoiceService = $invoiceService;
         $this->eventManager = $eventManager;
+        $this->orderRepository = $orderRepository;
     }
 
     public function execute(array $commandSubject)
@@ -74,12 +78,15 @@ class InitializeCommand implements CommandInterface
 
         $stateObject->setData('is_notified', false);
 
-        $invoice = false;
+        // Save order before create invoice
+        $this->orderRepository->save($payment->getOrder());
+        
+        $invoice = false;      
         if ($this->config->isAuthorizeAndCapture() && !$isFraudDetected && !$isTransactionPending) {
             $invoice = $this->invoiceService->prepareInvoice($payment->getOrder());
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
             $invoice->register();
-            $invoice->save();
+            $invoice->save(); 
         }
 
         $this->eventManager->dispatch(
@@ -88,3 +95,4 @@ class InitializeCommand implements CommandInterface
         );
     }
 }
+
