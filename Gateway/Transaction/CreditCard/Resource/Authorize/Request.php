@@ -267,7 +267,10 @@ class Request implements BraspaglibRequestInterface, RequestInterface
      */
     public function getCustomerDeliveryAddressZipCode()
     {
-        return $this->getShippingAddress()->getPostcode();
+    	if($this->getShippingAddress() !== null) {
+                return $this->getShippingAddress()->getPostcode();
+        }
+        return '';
     }
 
     /**
@@ -283,7 +286,10 @@ class Request implements BraspaglibRequestInterface, RequestInterface
      */
     public function getCustomerDeliveryAddressCity()
     {
-        return $this->getShippingAddress()->getCity();
+	if($this->getShippingAddress() !== null) {
+                return $this->getShippingAddress()->getCity();
+        }
+        return '';
     }
 
     /**
@@ -291,7 +297,10 @@ class Request implements BraspaglibRequestInterface, RequestInterface
      */
     public function getCustomerDeliveryAddressState()
     {
-        return $this->getShippingAddress()->getRegionCode();
+	if($this->getShippingAddress() !== null) {
+                return $this->getShippingAddress()->getRegionCode();
+        }
+        return '';
     }
 
     /**
